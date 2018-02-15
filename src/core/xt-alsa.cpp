@@ -302,10 +302,14 @@ XtFault AlsaService::GetDeviceCount(int32_t* count) const {
 }
 
 XtFault AlsaService::GetDeviceId(int32_t index, char** id) const {
-  return 0;
+  return GetDeviceName(index, id);
 }
 
 XtFault AlsaService::GetDeviceName(int32_t index, char** name) const {
+  std::vector<AlsaDeviceInfo> infos(GetDeviceInfos());
+  if(index >= static_cast<int32_t>(infos.size()))
+    return -EINVAL;
+  *name = strdup(infos[static_cast<size_t>(index)].description.c_str());
   return 0;
 }
 

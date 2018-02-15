@@ -133,10 +133,12 @@ XtFault PulseService::GetDeviceCount(int32_t* count) const {
 }
 
 XtFault PulseService::GetDeviceId(int32_t index, char** id) const {
+  *id = strdup(index != 0 ? "Output": "Input");
   return 0;
 }
 
 XtFault PulseService::GetDeviceName(int32_t index, char** name) const {
+  *name = strdup(index != 0 ? "Output": "Input");
   return 0;
 }
 
