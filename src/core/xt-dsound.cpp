@@ -145,6 +145,16 @@ static HRESULT EnumDevices(std::vector<DeviceInfo>& infos, bool defaults) {
   return S_OK;
 }
 
+static HRESULT GetDeviceInfo(int32_t index, DeviceInfo& info) {
+  HRESULT hr;
+  std::vector<DeviceInfo> infos;
+  XT_VERIFY_COM(EnumDevices(infos, false));
+  if(static_cast<size_t>(index) >= infos.size())
+    return DSERR_NODRIVER;
+  info = infos[index];
+  return S_OK;
+}
+
 static HRESULT OpenDevice(const DeviceInfo& info, XtDevice** device) {  
   HRESULT hr;
   CComPtr<IDirectSound> output;
@@ -183,20 +193,29 @@ XtFault DSoundService::GetDeviceCount(int32_t* count) const {
 }
 
 XtFault DSoundService::GetDeviceId(int32_t index, char** id) const {
-  return 0;
+  HRESULT hr;
+  DeviceInfo info;
+  std::string text;
+  CComHeapPtr<wchar_t> wtext;
+  XT_VERIFY_COM(GetDeviceInfo(index, info));
+  XT_VERIFY_COM(StringFromCLSID(info.guid, &wtext));
+  *id = _strdup(XtwWideStringToUtf8(wtext).c_str());
+  return S_OK;
 }
 
 XtFault DSoundService::GetDeviceName(int32_t index, char** name) const {
-  return 0;
+  HRESULT hr;
+  DeviceInfo info;
+  XT_VERIFY_COM(GetDeviceInfo(index, info));
+  *name = _strdup(info.name.c_str());
+  return S_OK;
 }
 
 XtFault DSoundService::OpenDevice(int32_t index, XtDevice** device) const  { 
   HRESULT hr;
-  std::vector<DeviceInfo> infos;
-  XT_VERIFY_COM(EnumDevices(infos, false));
-  if(static_cast<size_t>(index) >= infos.size())
-    return DSERR_NODRIVER;
-  return ::OpenDevice(infos[index], device);
+  DeviceInfo info;
+  XT_VERIFY_COM(GetDeviceInfo(index, info));
+  return ::OpenDevice(info, device);
 }
 
 XtFault DSoundService::OpenDefaultDevice(XtBool output, XtDevice** device) const  {

@@ -136,7 +136,21 @@ const char* XtwWasapiGetFaultText(XtFault fault) {
 
 // ---- local ----
 
-static HRESULT GetDevices(
+static HRESULT GetMMDeviceName(IMMDevice* d, const Options& options, char** name) {  
+  HRESULT hr;
+  XtwPropVariant n;
+  std::string result;
+  CComPtr<IPropertyStore> store;
+
+  XT_VERIFY_COM(d->OpenPropertyStore(STGM_READ, &store));
+  XT_VERIFY_COM(store->GetValue(PKEY_Device_FriendlyName, &n.pv));
+  result = XtwWideStringToUtf8(n.pv.pwszVal);
+  result.append(options.loopback? " (Loopback)": options.exclusive? " (Exclusive)": " (Shared)");
+  *name = _strdup(result.c_str());
+  return S_OK;
+}
+
+static HRESULT GetMMDevices(
   CComPtr<IMMDeviceCollection>& ins, UINT& ic, CComPtr<IMMDeviceCollection>& outs, UINT& oc) {  
 
   HRESULT hr;
@@ -146,6 +160,45 @@ static HRESULT GetDevices(
   XT_VERIFY_COM(enumerator->EnumAudioEndpoints(eRender, DEVICE_STATE_ACTIVE, &outs));
   XT_VERIFY_COM(ins->GetCount(&ic));
   XT_VERIFY_COM(outs->GetCount(&oc));
+  return S_OK;
+}
+
+static HRESULT OpenMMDevice(int32_t index, Options& options, CComPtr<IMMDevice>& d) {
+  
+  HRESULT hr;
+  UINT inCount, outCount;
+  CComPtr<IMMDeviceCollection> inputs, outputs;
+  uint32_t uindex = static_cast<uint32_t>(index);
+
+  options = { 0 };
+  XT_VERIFY_COM(GetMMDevices(inputs, inCount, outputs, outCount));
+  if(uindex < inCount) {
+    options.output = false;
+    options.loopback = false;
+    options.exclusive = false;
+    XT_VERIFY_COM(inputs->Item(uindex, &d));
+  } else if(uindex < inCount + outCount) {
+    options.output = false;
+    options.loopback = true;
+    options.exclusive = false;
+    XT_VERIFY_COM(outputs->Item(uindex - inCount, &d));
+  } else if(uindex < 2 * inCount + outCount) {
+    options.output = false;
+    options.loopback = false;
+    options.exclusive = true;
+    XT_VERIFY_COM(inputs->Item(uindex - inCount - outCount, &d));
+  } else if(uindex < 2 * inCount + 2 * outCount) {
+    options.output = true;
+    options.loopback = false;
+    options.exclusive = false;
+    XT_VERIFY_COM(outputs->Item(uindex - 2 * inCount - outCount, &d));
+  } else {
+    options.output = true;
+    options.loopback = false;
+    options.exclusive = true;
+    XT_VERIFY_COM(outputs->Item(uindex - 2 * inCount - 2 * outCount , &d));
+  }
+
   return S_OK;
 }
 
@@ -179,17 +232,28 @@ XtFault WasapiService::GetDeviceCount(int32_t* count) const {
   HRESULT hr;
   UINT inCount, outCount;
   CComPtr<IMMDeviceCollection> inputs, outputs;
-  XT_VERIFY_COM(GetDevices(inputs, inCount, outputs, outCount));
+  XT_VERIFY_COM(GetMMDevices(inputs, inCount, outputs, outCount));
   *count = 2 * inCount + 3 * outCount;
   return S_OK;
 }
 
 XtFault WasapiService::GetDeviceId(int32_t index, char** id) const {
-  return 0;
+  HRESULT hr;
+  CComPtr<IMMDevice> d;
+  Options options = { 0 };
+  CComHeapPtr<wchar_t> text;
+  XT_VERIFY_COM(OpenMMDevice(index, options, d));
+  XT_VERIFY_COM(d->GetId(&text));
+  *id = _strdup(XtwWideStringToUtf8(text).c_str());
+  return S_OK;
 }
 
 XtFault WasapiService::GetDeviceName(int32_t index, char** name) const {
-  return 0;
+  HRESULT hr;
+  CComPtr<IMMDevice> d;
+  Options options = { 0 };
+  XT_VERIFY_COM(OpenMMDevice(index, options, d));
+  return GetMMDeviceName(d, options, name);
 }
 
 XtFault WasapiService::OpenDefaultDevice(XtBool output, XtDevice** device) const {
@@ -222,41 +286,11 @@ XtFault WasapiService::OpenDefaultDevice(XtBool output, XtDevice** device) const
 XtFault WasapiService::OpenDevice(int32_t index, XtDevice** device) const {  
   HRESULT hr;
   CComPtr<IMMDevice> d;
-  UINT inCount, outCount;
   Options options = { 0 };
   CComPtr<IAudioClient> client;  
   CComPtr<IAudioClient3> client3;
-  CComPtr<IMMDeviceCollection> inputs, outputs;
-  uint32_t uindex = static_cast<uint32_t>(index);
 
-  XT_VERIFY_COM(GetDevices(inputs, inCount, outputs, outCount));
-  if(uindex < inCount) {
-    options.output = false;
-    options.loopback = false;
-    options.exclusive = false;
-    XT_VERIFY_COM(inputs->Item(uindex, &d));
-  } else if(uindex < inCount + outCount) {
-    options.output = false;
-    options.loopback = true;
-    options.exclusive = false;
-    XT_VERIFY_COM(outputs->Item(uindex - inCount, &d));
-  } else if(uindex < 2 * inCount + outCount) {
-    options.output = false;
-    options.loopback = false;
-    options.exclusive = true;
-    XT_VERIFY_COM(inputs->Item(uindex - inCount - outCount, &d));
-  } else if(uindex < 2 * inCount + 2 * outCount) {
-    options.output = true;
-    options.loopback = false;
-    options.exclusive = false;
-    XT_VERIFY_COM(outputs->Item(uindex - 2 * inCount - outCount, &d));
-  } else {
-    options.output = true;
-    options.loopback = false;
-    options.exclusive = true;
-    XT_VERIFY_COM(outputs->Item(uindex - 2 * inCount - 2 * outCount , &d));
-  }
-
+  XT_VERIFY_COM(OpenMMDevice(index, options, d));
   XT_VERIFY_COM(d->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr, reinterpret_cast<void**>(&client)));
   if(!options.loopback) {
     hr = client.QueryInterface(&client3);
@@ -273,6 +307,10 @@ XtFault WasapiDevice::ShowControlPanel() {
   return S_OK;
 }
 
+XtFault WasapiDevice::GetName(char** name) const {  
+  return GetMMDeviceName(device, options, name);
+}
+
 XtFault WasapiDevice::GetChannelName(XtBool output, int32_t index, char** name) const {
   *name = _strdup(XtwWfxChannelNames[index]);
   return S_OK;
@@ -285,20 +323,6 @@ XtFault WasapiDevice::GetChannelCount(XtBool output, int32_t* count) const {
 
 XtFault WasapiDevice::SupportsAccess(XtBool interleaved, XtBool* supports) const {
   *supports = interleaved;
-  return S_OK;
-}
-
-XtFault WasapiDevice::GetName(char** name) const {  
-  HRESULT hr;
-  XtwPropVariant n;
-  std::string result;
-  CComPtr<IPropertyStore> store;
-
-  XT_VERIFY_COM(device->OpenPropertyStore(STGM_READ, &store));
-  XT_VERIFY_COM(store->GetValue(PKEY_Device_FriendlyName, &n.pv));
-  result = XtwWideStringToUtf8(n.pv.pwszVal);
-  result.append(options.loopback? " (Loopback)": options.exclusive? " (Exclusive)": " (Shared)");
-  *name = _strdup(result.c_str());
   return S_OK;
 }
 

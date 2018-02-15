@@ -294,11 +294,23 @@ XtFault AsioService::GetDeviceCount(int32_t* count) const {
 }
 
 XtFault AsioService::GetDeviceId(int32_t index, char** id) const {
-  return 0;
+  HRESULT hr;
+  CLSID classId;
+  AsioDriverList list;
+  CComHeapPtr<wchar_t> text;
+  XT_VERIFY_ASIO(list.asioGetDriverCLSID(index, &classId));
+  XT_VERIFY_COM(StringFromCLSID(classId, &text));
+  *id = _strdup(XtwWideStringToUtf8(text).c_str());
+  return ASE_OK;
 }
 
 XtFault AsioService::GetDeviceName(int32_t index, char** name) const {
-  return 0;
+  HRESULT hr;
+  AsioDriverList list;
+  std::string n(MAXDRVNAMELEN, '\0');
+  XT_VERIFY_ASIO(list.asioGetDriverName(index, &n[0], MAXDRVNAMELEN));
+  *name = _strdup(n.c_str());
+  return ASE_OK;
 }
 
 XtFault AsioService::OpenDefaultDevice(XtBool output, XtDevice** device) const  { 
