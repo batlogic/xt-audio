@@ -239,12 +239,15 @@ XtFault WasapiService::GetDeviceCount(int32_t* count) const {
 
 XtFault WasapiService::GetDeviceId(int32_t index, char** id) const {
   HRESULT hr;
+  std::string text;
   CComPtr<IMMDevice> d;
   Options options = { 0 };
-  CComHeapPtr<wchar_t> text;
+  CComHeapPtr<wchar_t> wtext;
   XT_VERIFY_COM(OpenMMDevice(index, options, d));
-  XT_VERIFY_COM(d->GetId(&text));
-  *id = _strdup(XtwWideStringToUtf8(text).c_str());
+  XT_VERIFY_COM(d->GetId(&wtext));
+  text = XtwWideStringToUtf8(wtext);
+  text += options.exclusive? "x": options.loopback? "l": "s";
+  *id = _strdup(text.c_str());
   return S_OK;
 }
 
