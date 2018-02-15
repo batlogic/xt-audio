@@ -51,6 +51,18 @@ public final class XtService {
         XtNative.handleError(XtNative.XtServiceGetDeviceCount(s, count));
         return count.getValue();
     }
+    
+    public String getDeviceId(int index) {
+        PointerByReference id = new PointerByReference();
+        XtNative.handleError(XtNative.XtServiceGetDeviceId(s, index, id));
+        return XtNative.wrapAndFreeString(id.getValue());
+    }
+
+    public String getDeviceName(int index) {
+        PointerByReference name = new PointerByReference();
+        XtNative.handleError(XtNative.XtServiceGetDeviceName(s, index, name));
+        return XtNative.wrapAndFreeString(name.getValue());
+    }
 
     public XtDevice openDevice(int index) {
         PointerByReference d = new PointerByReference();

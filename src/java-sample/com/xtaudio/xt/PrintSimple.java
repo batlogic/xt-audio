@@ -8,9 +8,7 @@ public class PrintSimple {
             for (int s = 0; s < XtAudio.getServiceCount(); s++) {
                 XtService service = XtAudio.getServiceByIndex(s);
                 for (int d = 0; d < service.getDeviceCount(); d++)
-                    try (XtDevice device = service.openDevice(d)) {
-                        System.out.println(service.getName() + ": " + device.getName());
-                    }
+                        System.out.println(service.getName() + ": " + service.getDeviceName(d));
             }
         }
     }

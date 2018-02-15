@@ -198,6 +198,8 @@ final class XtNative {
     static native String XtServiceGetName(Pointer s);
     static native int XtServiceGetCapabilities(Pointer s);
     static native long XtServiceGetDeviceCount(Pointer s, IntByReference count);
+    static native long XtServiceGetDeviceId(Pointer s, int index, PointerByReference id);
+    static native long XtServiceGetDeviceName(Pointer s, int index, PointerByReference name);
     static native long XtServiceOpenDevice(Pointer s, int index, PointerByReference device);
     static native long XtServiceOpenDefaultDevice(Pointer s, boolean output, PointerByReference device);
     static native long XtServiceAggregateStream(Pointer s, Pointer devices,

@@ -40,6 +40,8 @@ public class PrintDetailed {
                     try (XtDevice device = service.openDevice(d)) {
 
                         System.out.println("  Device " + device.getName() + ":");
+                        System.out.println("    Name: " + service.getDeviceName(d));
+                        System.out.println("    Id: " + service.getDeviceId(d));
                         System.out.println("    System: " + device.getSystem());
                         System.out.println("    Current mix: " + device.getMix());
                         System.out.println("    Input channels: " + device.getChannelCount(false));
