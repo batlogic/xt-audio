@@ -38,11 +38,12 @@ namespace Xt {
                         using (XtDevice defaultOutput = service.OpenDefaultDevice(true))
                             Console.WriteLine("  Default output: " + defaultOutput);
 
-
                         for (int d = 0; d < service.GetDeviceCount(); d++)
                             using (XtDevice device = service.OpenDevice(d)) {
 
                                 Console.WriteLine("  Device " + device.GetName() + ":");
+                                Console.WriteLine("    Name: " + service.GetDeviceName(d));
+                                Console.WriteLine("    Id: " + service.GetDeviceId(d));
                                 Console.WriteLine("    System: " + device.GetSystem());
                                 Console.WriteLine("    Current mix: " + device.GetMix());
                                 Console.WriteLine("    Input channels: " + device.GetChannelCount(false));

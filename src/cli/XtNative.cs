@@ -196,6 +196,10 @@ namespace Xt {
         [DllImport("xt-core.dll", CallingConvention = CallingConvention.StdCall)]
         internal static extern ulong XtServiceGetDeviceCount(IntPtr s, out int count);
         [DllImport("xt-core.dll", CallingConvention = CallingConvention.StdCall)]
+        internal static extern ulong XtServiceGetDeviceId(IntPtr s, int index, out IntPtr id);
+        [DllImport("xt-core.dll", CallingConvention = CallingConvention.StdCall)]
+        internal static extern ulong XtServiceGetDeviceName(IntPtr s, int index, out IntPtr name);
+        [DllImport("xt-core.dll", CallingConvention = CallingConvention.StdCall)]
         internal static extern ulong XtServiceOpenDevice(IntPtr s, int index, out IntPtr device);
         [DllImport("xt-core.dll", CallingConvention = CallingConvention.StdCall)]
         internal static extern ulong XtServiceOpenDefaultDevice(IntPtr s, bool output, out IntPtr device);

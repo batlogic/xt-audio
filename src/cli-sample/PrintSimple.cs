@@ -10,8 +10,7 @@ namespace Xt {
                 for (int s = 0; s < XtAudio.GetServiceCount(); s++) {
                     XtService service = XtAudio.GetServiceByIndex(s);
                     for (int d = 0; d < service.GetDeviceCount(); d++)
-                        using (XtDevice device = service.OpenDevice(d))
-                            Console.WriteLine(service.GetName() + ": " + device.GetName());
+                            Console.WriteLine(service.GetName() + ": " + service.GetDeviceName(d));
                 }
             }
         }

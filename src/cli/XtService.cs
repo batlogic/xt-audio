@@ -49,6 +49,18 @@ namespace Xt {
             return count;
         }
 
+        public string GetDeviceId(int index) {
+            IntPtr id;
+            XtNative.HandleError(XtNative.XtServiceGetDeviceId(s, index, out id));
+            return XtNative.FreeStringFromUtf8(id);
+        }
+
+        public string GetDeviceName(int index) {
+            IntPtr name;
+            XtNative.HandleError(XtNative.XtServiceGetDeviceName(s, index, out name));
+            return XtNative.FreeStringFromUtf8(name);
+        }
+
         public XtDevice OpenDevice(int index) {
             IntPtr d;
             XtNative.HandleError(XtNative.XtServiceOpenDevice(s, index, out d));
