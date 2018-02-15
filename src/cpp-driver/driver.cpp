@@ -127,7 +127,9 @@ static bool ListService(Xt::Service& service) {
     return false;
   int32_t count = service.GetDeviceCount();
   for(int32_t d = 0; d < count; d++) {
-    std::cout << "  Device " << d << ":\n";
+    std::string id = service.GetDeviceId(d);
+    std::string name = service.GetDeviceName(d);
+    std::cout << "  Device " << d << " (name: " << name << ", id: " << id <<  "):\n";
     std::unique_ptr<Xt::Device> device = service.OpenDevice(d);
     if(!ListDevice(*device.get()))
       return false;

@@ -333,6 +333,8 @@ XT_API XtSystem XT_CALL XtServiceGetSystem(const XtService* s);
 XT_API const char* XT_CALL XtServiceGetName(const XtService* s);
 XT_API XtCapabilities XT_CALL XtServiceGetCapabilities(const XtService* s);
 XT_API XtError XT_CALL XtServiceGetDeviceCount(const XtService* s, int32_t* count);
+XT_API XtError XT_CALL XtServiceGetDeviceId(const XtService* s, int32_t index, char** id);
+XT_API XtError XT_CALL XtServiceGetDeviceName(const XtService* s, int32_t index, char** name);
 XT_API XtError XT_CALL XtServiceOpenDevice(const XtService* s, int32_t index, XtDevice** device);
 XT_API XtError XT_CALL XtServiceOpenDefaultDevice(const XtService* s, XtBool output, XtDevice** device);
 XT_API XtError XT_CALL XtServiceAggregateStream(const XtService* s, XtDevice** devices, const XtChannels* channels, 

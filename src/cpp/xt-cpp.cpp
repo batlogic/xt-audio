@@ -276,6 +276,18 @@ int32_t Service::GetDeviceCount() const {
   return count;
 }
 
+std::string Service::GetDeviceId(int32_t index) const { 
+  char* id; 
+  HandleError(XtServiceGetDeviceId(s, index, &id)); 
+  return WrapAndFreeCString(id);
+}
+
+std::string Service::GetDeviceName(int32_t index) const { 
+  char* name; 
+  HandleError(XtServiceGetDeviceName(s, index, &name)); 
+  return WrapAndFreeCString(name);
+}
+
 Capabilities Service::GetCapabilities() const {
   return static_cast<Capabilities>(XtServiceGetCapabilities(s));
 }

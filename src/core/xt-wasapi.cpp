@@ -184,6 +184,14 @@ XtFault WasapiService::GetDeviceCount(int32_t* count) const {
   return S_OK;
 }
 
+XtFault WasapiService::GetDeviceId(int32_t index, char** id) const {
+  return 0;
+}
+
+XtFault WasapiService::GetDeviceName(int32_t index, char** name) const {
+  return 0;
+}
+
 XtFault WasapiService::OpenDefaultDevice(XtBool output, XtDevice** device) const {
   HRESULT hr;
   Options options;

@@ -365,6 +365,24 @@ XtError XT_CALL XtServiceGetDeviceCount(const XtService* s, int32_t* count) {
   return XtiCreateError(s->GetSystem(), s->GetDeviceCount(count));
 }
 
+XtError XT_CALL XtServiceGetDeviceId(const XtService* s, int32_t index, char** id) {
+   XT_ASSERT(index >= 0);
+   XT_ASSERT(s != nullptr);
+   XT_ASSERT(id != nullptr);
+   XT_ASSERT(XtiCalledOnMainThread());
+  *id = nullptr;
+  return XtiCreateError(s->GetSystem(), s->GetDeviceId(index, id));
+}
+
+XtError XT_CALL XtServiceGetDeviceName(const XtService* s, int32_t index, char** name) {
+   XT_ASSERT(index >= 0);
+   XT_ASSERT(s != nullptr);
+   XT_ASSERT(name != nullptr);
+   XT_ASSERT(XtiCalledOnMainThread());
+  *name = nullptr;
+  return XtiCreateError(s->GetSystem(), s->GetDeviceName(index, name));
+}
+
 XtError XT_CALL XtServiceOpenDevice(const XtService* s, int32_t index, XtDevice** device) {
   XT_ASSERT(index >= 0);
   XT_ASSERT(s != nullptr);

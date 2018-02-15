@@ -182,6 +182,14 @@ XtFault DSoundService::GetDeviceCount(int32_t* count) const {
   return S_OK;
 }
 
+XtFault DSoundService::GetDeviceId(int32_t index, char** id) const {
+  return 0;
+}
+
+XtFault DSoundService::GetDeviceName(int32_t index, char** name) const {
+  return 0;
+}
+
 XtFault DSoundService::OpenDevice(int32_t index, XtDevice** device) const  { 
   HRESULT hr;
   std::vector<DeviceInfo> infos;

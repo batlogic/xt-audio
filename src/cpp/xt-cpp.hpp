@@ -225,6 +225,8 @@ public:
   std::string GetName() const;
   int32_t GetDeviceCount() const;
   Capabilities GetCapabilities() const;
+  std::string GetDeviceId(int32_t index) const;
+  std::string GetDeviceName(int32_t index) const;
   std::unique_ptr<Device> OpenDevice(int32_t index) const;
   std::unique_ptr<Device> OpenDefaultDevice(bool output) const;
   std::unique_ptr<Stream> AggregateStream(Device** devices, const Channels* channels, 

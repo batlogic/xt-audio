@@ -66,6 +66,8 @@ struct name ## Service: public XtService {                           \
   XtCause GetFaultCause(XtFault fault) const;                        \
   XtFault GetDeviceCount(int32_t* count) const;                      \
   const char* GetFaultText(XtFault fault) const;                     \
+  XtFault GetDeviceId(int32_t index, char** id) const;               \
+  XtFault GetDeviceName(int32_t index, char** name) const;           \
   XtSystem GetSystem() const { return XtSystem ## name; }            \
   XtFault OpenDevice(int32_t index, XtDevice** device) const;        \
   XtFault OpenDefaultDevice(XtBool output, XtDevice** device) const; \
@@ -151,6 +153,8 @@ struct XtService {
   virtual XtCause GetFaultCause(XtFault fault) const = 0;
   virtual XtFault GetDeviceCount(int32_t* count) const = 0;
   virtual const char* GetFaultText(XtFault fault) const = 0;
+  virtual XtFault GetDeviceId(int32_t index, char** id) const = 0;
+  virtual XtFault GetDeviceName(int32_t index, char** name) const = 0;
   virtual XtFault OpenDevice(int32_t index, XtDevice** device) const = 0;
   virtual XtFault OpenDefaultDevice(XtBool output, XtDevice** device) const = 0;
 };

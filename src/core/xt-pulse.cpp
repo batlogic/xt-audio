@@ -132,6 +132,14 @@ XtFault PulseService::GetDeviceCount(int32_t* count) const {
   return PA_OK;
 }
 
+XtFault PulseService::GetDeviceId(int32_t index, char** id) const {
+  return 0;
+}
+
+XtFault PulseService::GetDeviceName(int32_t index, char** name) const {
+  return 0;
+}
+
 XtFault PulseService::OpenDevice(int32_t index, XtDevice** device) const {
   XtPaSimple client = CreateDefaultClient(index != 0);
   if(client.simple == nullptr)
