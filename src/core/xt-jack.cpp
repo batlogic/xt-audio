@@ -247,8 +247,7 @@ XtFault JackService::GetDeviceCount(int32_t* count) const {
 }
 
 XtFault JackService::GetDeviceId(int32_t index, char** id) const {
-  *id = strdup("JACK");
-  return 0;
+  return GetDeviceName(index, id);
 }
 
 XtFault JackService::GetDeviceName(int32_t index, char** name) const {
